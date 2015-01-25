@@ -19,10 +19,6 @@
      */
     angular.module('selectDropdownSample').controller('SelectDropdownSampleCtrl', function ($scope, $http) {
 
-        $scope.selectedUser = null;
-        $scope.selectedUsers = [];
-        $scope.selectedNames = [];
-
         /**
          * Array of data that will be used to show in the select.
          *

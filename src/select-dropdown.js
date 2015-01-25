@@ -65,15 +65,14 @@
      */
     function selectDropdown($parse) {
         return {
-            scope: true,
             replace: true,
             restrict: 'E',
             template: function(element, attrs) {
                 var selectBoxId = 'select_dropdown_' + s4() + '_' + s4() + '_' + s4();
-                return ['<div class="select-dropdown" ng-class="{ \'disabled\': isDisabled }">',
+                return ['<div class="select-dropdown" ng-class="{ \'disabled\': ' + selectBoxId + '.isDisabled }" data-id="' + selectBoxId + '">',
                     '<select-dropdown-items-box id="' + selectBoxId + '" tabindex="2" style="display: block"',
                             'class="select-dropdown-items-box"',
-                            'ng-class="{\'opened\': isOpened, \'closed\': !isOpened}"',
+                            'ng-class="{\'opened\': ' + selectBoxId + '.isOpened, \'closed\': !' + selectBoxId + '.isOpened}"',
                             attrs.nothingSelectedLabel ? 'nothing-selected-label="' + attrs.nothingSelectedLabel + '"' : '',
                             attrs.selectedItemDecorator ? 'decorator="' + attrs.selectedItemDecorator + '"' : '',
                             attrs.selectedItemsSeparator ? 'separator="' + attrs.selectedItemsSeparator + '"' : '',
@@ -84,7 +83,7 @@
                                     'tabindex="3" ',
                                     'for="' + selectBoxId + '" ',
                                     'toggle-click="true" ',
-                                    'is-opened="isOpened">',
+                                    'is-opened="' + selectBoxId + '.isOpened">',
                        '<select-items class="select-items"',
                             'select-options="' + attrs.selectOptions + '"',
                             'ng-model="' + attrs.ngModel + '"',
@@ -118,19 +117,11 @@
                 // Variables
                 // ---------------------------------------------------------------------
 
-                /**
-                 * Indicates if dropdown is opened or not.
-                 *
-                 * @type {boolean}
-                 */
-                scope.isOpened = false;
-
-                /**
-                 * Indicates if dropdown is disabled or not.
-                 *
-                 * @type {boolean}
-                 */
-                scope.isDisabled = $parse(attrs.disabled)(scope);
+                var id = angular.element(element).attr('data-id');
+                scope[id] = {
+                    isOpened: false,
+                    isDisabled: $parse(attrs.disabled)(scope)
+                };
 
                 // ---------------------------------------------------------------------
                 // Local functions
@@ -157,27 +148,27 @@
 
                         case 38: // KEY "UP"
                             e.preventDefault();
-                            scope.isOpened = true;
+                            scope[id].isOpened = true;
                             scope.$broadcast('select-items.active_next');
                             scope.$digest();
                             return;
 
                         case 40: // KEY "DOWN"
                             e.preventDefault();
-                            scope.isOpened = true;
+                            scope[id].isOpened = true;
                             scope.$broadcast('select-items.active_previous');
                             scope.$digest();
                             return;
 
                         case 13: // KEY "ENTER"
-                            if (scope.isOpened) {
+                            if (scope[id].isOpened) {
                                 scope.$broadcast('select-items.select_active');
                                 scope.$digest();
                             }
                             return;
 
                         case 27: // KEY "ESC"
-                            scope.isOpened = false;
+                            scope[id].isOpened = false;
                             scope.$digest();
                             return;
 
@@ -194,7 +185,7 @@
                  */
                 var onItemSelected = function(event, object) {
                     if (object && !object.isMultiselect)
-                        scope.isOpened = false;
+                        scope[id].isOpened = false;
 
                     //scope.$digest();
                 };
@@ -207,7 +198,7 @@
                 scope.$on('select-items.item_selected', onItemSelected);
 
                 scope.$watch(attrs.disabled, function(disabled) {
-                    scope.isDisabled = disabled;
+                    scope[id].isDisabled = disabled;
                 });
             }
         };
