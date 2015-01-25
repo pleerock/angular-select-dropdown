@@ -1,0 +1,36 @@
+{
+  "name": "angular-select-dropdown",
+  "description": "A special angular directive that allows to select items from the dropdown",
+  "version": "0.0.1",
+  "keywords": ["multiselect-dropdown", "dropdown-multiselect", "select-dropdown", "angular-select-dropdown"],
+  "authors": [
+    { "name": "Umed Khudoiberdiev", "email": "info@zar.tj" }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/PLEEROCK/angular-select-dropdown.git"
+  },
+  "main": [
+    "./dist/angular-select-dropdown.js",
+    "./dist/angular-select-dropdown.css"
+  ],
+  "ignore": [
+    ".gitignore",
+    ".jshintrc",
+    "package.json",
+    "gulpfile.js",
+    "node_modules",
+    "bower_components",
+    "src",
+    "reports",
+    "samples",
+    "test"
+  ],
+  "dependencies": {
+    "angular": ">= 1.0.8"
+  },
+  "devDependencies": {
+    "angular-mocks": ">= 1.0.8",
+    "angular-scenario": ">= 1.0.8"
+  }
+}
