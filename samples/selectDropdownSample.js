@@ -1,5 +1,5 @@
 /**
- * Sample that shows how autoGrowInput module and select-dropdown directive work.
+ * Sample that shows how select-dropdown directive work.
  *
  * @author Umed Khudoiberdiev <info@zar.tj>
  */
@@ -18,6 +18,10 @@
      * @name SelectDropdownSampleCtrl
      */
     angular.module('selectDropdownSample').controller('SelectDropdownSampleCtrl', function ($scope, $http) {
+
+        $scope.loadedRepositories = [
+            { name: 'angular', url: 'https://github.com/angular/angular' }
+        ];
 
         /**
          * Array of data that will be used to show in the select.
@@ -123,7 +127,7 @@
 
         /**
          * A callback that will be called when search is performed in the select-tags component.
-         * Search will be performed by a given keyword. Must return a promise.
+         * Must return a promise.
          *
          * @returns {*}
          */

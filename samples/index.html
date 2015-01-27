@@ -22,8 +22,14 @@
     <script src="../src/select-dropdown-items-box.js"></script>
     <script src="../src/selectDropdownConfiguration.js"></script>
 
+
     <style>
+
         h1 i{ font-size: 12px; font-weight: normal; font-style: italic; color: #ffa82f; }
+        .custom-selected { background: #ffa82f; }
+        .custom-item:hover { background: #eee; }
+        .custom-item { cursor: pointer; }
+
     </style>
 
 </head>
@@ -350,7 +356,7 @@
 
     <select-dropdown select-options="user.name for user in users"
                   ng-model="selectedUser"
-                  ng-change="changed(selectedUser)"
+                  on-change="changed(selectedUser)"
                   select-all="true"
                   search="true"
                   search-placeholder="TYPE HERE TO SEARCH"
@@ -359,6 +365,83 @@
 
     <br/>
     Is $scope.changed called: <b>{{ isChangedCalled ? 'yes' : 'no' }}</b><br/>
+
+    <!-- =================================================================== -->
+
+    <h1>Example with remote items</h1>
+
+    <select-dropdown ng-model="loadedRepositories"
+                     multiselect="true"
+                     select-all="true"
+                     loading-label="Please wait, loading repositories..."
+                     search="true"
+                     load-promise="loadGithubRepositories"
+                     select-options="repository.name for repository in repositories track by repository.url">
+    </select-dropdown>
+
+    <br/>
+    Selected repositories are: <b ng-repeat="repo in loadedRepositories">{{ repo.name }} </b><br/>
+    Model: <small>{{ loadedRepositories }}</small><br/>
+
+    <!-- =================================================================== -->
+
+    <h1>Example with remote items</h1>
+
+    <select-dropdown ng-model="loadedRepositories"
+                     multiselect="true"
+                     select-all="true"
+                     loading-label="Please wait, loading repositories..."
+                     search="true"
+                     load-promise="loadGithubRepositories"
+                     select-options="repository.name for repository in repositories track by repository.url">
+    </select-dropdown>
+
+    <br/>
+    Selected repositories are: <b ng-repeat="repo in loadedRepositories">{{ repo.name }} </b><br/>
+    Model: <small>{{ loadedRepositories }}</small><br/>
+
+    <!-- =================================================================== -->
+
+    <h1>Example with remote items with lazy load (items are loaded after clicking on dropdown)</h1>
+
+    <select-dropdown ng-model="loadedRepositories"
+                     lazy-load="true"
+                     multiselect="true"
+                     select-all="true"
+                     loading-label="Please wait, loading repositories..."
+                     search="true"
+                     load-promise="loadGithubRepositories"
+                     select-options="repository.name for repository in repositories track by repository.url">
+    </select-dropdown>
+
+    <br/>
+    Selected repositories are: <b ng-repeat="repo in loadedRepositories">{{ repo.name }} </b><br/>
+    Model: <small>{{ loadedRepositories }}</small><br/>
+
+    <!-- =================================================================== -->
+
+    <h1>Select dropdown with custom template</h1>
+
+    <select-dropdown select-options="user.name for user in users"
+                     ng-model="selectedUsers"
+                     multiselect="true">
+
+        <div class="custom-item"
+             ng-repeat="user in getDisplayedItems()"
+             ng-click="selectItem(user)"
+             ng-class="{ 'custom-selected': isItemSelected(user) }">
+            <h1>{{ user.name }}</h1>
+            <div>
+                Email: {{ user.email }}
+                Group: {{ user.group }}
+            </div>
+        </div>
+
+    </select-dropdown>
+
+    <br/>
+    Selected users are: <b ng-repeat="selectedUser in selectedUsers">{{ selectedUser.name }} </b><br/>
+    Model: <small>{{ selectedUsers }}</small><br/>
 
     <!-- =================================================================== -->
 
