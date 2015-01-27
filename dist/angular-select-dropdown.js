@@ -48,7 +48,7 @@
      * This directive allows to select items from the dropdown to fill the given model with the data provided by dropdown.
      *
      * @param {expression} ngModel Model that will be changed
-     * @param {expression} ngChanged Expression to be evaluated when model is changed
+     * @param {expression} onChange Expression to be evaluated when model is changed
      * @param {expression} selectOptions Options to be parsed and used for items data source and other options
      * @param {Function} selectedItemDecorator Decorator function that can wrap or change how item will be shown in the items box
      * @param {string} nothingSelectedLabel Decorator function that can wrap or change how item will be shown in the items box
@@ -93,6 +93,7 @@
      * @param {Array.<Function>} filters Filters used to filter out values that must not be shown.
      * @param {Function} dropdownItemDecorator Custom decorator used to change a view of the list item
      * @param {Function} dropdownGroupDecorator Custom decorator used to change a view of the list item group
+     * @param {boolean} lazyLoad Indicates if loading items into the dropdown should be done only by a first click on it
      */
     angular.module('selectDropdown').directive('selectDropdown', selectDropdown);
 
@@ -101,15 +102,16 @@
      */
     function selectDropdown($parse) {
         return {
-            //scope: true,
             replace: true,
             restrict: 'E',
             template: function(element, attrs) {
-                var selectBoxId = 'select_dropdown_' + s4() + '_' + s4() + '_' + s4();
-                return ['<div class="select-dropdown" ng-class="{ \'disabled\': ' + selectBoxId + '.isDisabled }" data-id="' + selectBoxId + '">',
-                    '<select-dropdown-items-box id="' + selectBoxId + '" tabindex="2" style="display: block"',
+                var id = 'select_dropdown_' + s4() + '_' + s4() + '_' + s4();
+                var html = element.html().trim();
+
+                return ['<div class="select-dropdown" ng-class="{ \'disabled\': ' + id + '.isDisabled }" data-id="' + id + '">',
+                    '<select-dropdown-items-box id="' + id + '" tabindex="2" style="display: block"',
                             'class="select-dropdown-items-box"',
-                            'ng-class="{\'opened\': ' + selectBoxId + '.isOpened, \'closed\': !' + selectBoxId + '.isOpened}"',
+                            'ng-class="{\'opened\': ' + id + '.isOpened, \'closed\': !' + id + '.isOpened}"',
                             attrs.nothingSelectedLabel ? 'nothing-selected-label="' + attrs.nothingSelectedLabel + '"' : '',
                             attrs.selectedItemDecorator ? 'decorator="' + attrs.selectedItemDecorator + '"' : '',
                             attrs.selectedItemsSeparator ? 'separator="' + attrs.selectedItemsSeparator + '"' : '',
@@ -118,35 +120,36 @@
                     '<open-dropdown class="open-dropdown" ',
                                     'disabled="' + attrs.disabled + '"',
                                     'tabindex="3" ',
-                                    'for="' + selectBoxId + '" ',
+                                    'for="' + id + '" ',
                                     'toggle-click="true" ',
-                                    'is-opened="' + selectBoxId + '.isOpened">',
+                                    'is-opened="' + id + '.isOpened">',
                        '<select-items class="select-items"',
                             'select-options="' + attrs.selectOptions + '"',
                             'ng-model="' + attrs.ngModel + '"',
+                            attrs.onChange ? 'on-change="' + attrs.onChange + '"' : '',
                             attrs.multiselect ? 'multiselect="' +  attrs.multiselect + '"' : '',
-                    attrs.dropdownShowLimit ? 'show-limit="' + attrs.dropdownShowLimit + '"' : '',
-                    attrs.search ? 'search="' + attrs.search + '"' : '',
-                    attrs.searchFilter ? 'search-filter="' + attrs.searchFilter + '"' : '',
-                    attrs.searchKeyword ? 'search-keyword="' + attrs.searchKeyword + '"' : '',
-                    attrs.autoSelect ? 'auto-select="' + attrs.autoSelect + '"' : '',
-                    attrs.selectAll ? 'select-all="' + attrs.selectAll + '"' : '',
-                    attrs.groupSelectAll ? 'group-select-all="' + attrs.groupSelectAll + '"' : '',
-                    attrs.hideControls ? 'hide-controls="' + attrs.hideControls + '"' : '',
-                    attrs.hideNoSelection ? 'hide-no-selection="' + attrs.hideNoSelection + '"' : '',
-                    attrs.searchPlaceholder ? 'search-placeholder="' + attrs.searchPlaceholder + '"' : '',
-                    attrs.selectAllLabel ? 'select-all-label="' + attrs.selectAllLabel + '"' : '',
-                    attrs.deselectAllLabel ? 'deselect-all-label="' + attrs.deselectAllLabel + '"' : '',
-                    attrs.noSelectionLabel ? 'no-selection-label="' + attrs.noSelectionLabel + '"' : '',
-                    attrs.loadingLabel ? 'loading-label="' + attrs.loadingLabel + '"' : '',
-                    attrs.loadPromise ? 'load-promise="' + attrs.loadPromise + '"' : '',
-                    attrs.loadByKeywordPromise ? 'load-by-keyword-promise="' + attrs.loadByKeywordPromise + '"' : '',
-                    attrs.loadByKeywordDelay ? 'load-by-keyword-delay="' + attrs.loadByKeywordDelay + '"' : '',
-                    attrs.loadByKeywordMinQueryLength ? 'load-by-keyword-min-query-length="' + attrs.loadByKeywordMinQueryLength + '"' : '',
-                    attrs.filters ? 'filters="' + attrs.filters + '"' : '',
-                    attrs.dropdownItemDecorator ? 'decorator="' + attrs.dropdownItemDecorator + '"' : '',
-                    attrs.dropdownGroupDecorator ? 'group-decorator="' + attrs.dropdownGroupDecorator + '"' : '',
-                    '></select-items></open-dropdown></div>'].join('');
+                            attrs.dropdownShowLimit ? 'show-limit="' + attrs.dropdownShowLimit + '"' : '',
+                            attrs.search ? 'search="' + attrs.search + '"' : '',
+                            attrs.searchFilter ? 'search-filter="' + attrs.searchFilter + '"' : '',
+                            attrs.searchKeyword ? 'search-keyword="' + attrs.searchKeyword + '"' : '',
+                            attrs.autoSelect ? 'auto-select="' + attrs.autoSelect + '"' : '',
+                            attrs.selectAll ? 'select-all="' + attrs.selectAll + '"' : '',
+                            attrs.groupSelectAll ? 'group-select-all="' + attrs.groupSelectAll + '"' : '',
+                            attrs.hideControls ? 'hide-controls="' + attrs.hideControls + '"' : '',
+                            attrs.hideNoSelection ? 'hide-no-selection="' + attrs.hideNoSelection + '"' : '',
+                            attrs.searchPlaceholder ? 'search-placeholder="' + attrs.searchPlaceholder + '"' : '',
+                            attrs.selectAllLabel ? 'select-all-label="' + attrs.selectAllLabel + '"' : '',
+                            attrs.deselectAllLabel ? 'deselect-all-label="' + attrs.deselectAllLabel + '"' : '',
+                            attrs.noSelectionLabel ? 'no-selection-label="' + attrs.noSelectionLabel + '"' : '',
+                            attrs.loadingLabel ? 'loading-label="' + attrs.loadingLabel + '"' : '',
+                            attrs.loadPromise ? 'load-promise="(' + id + '.isOpenedForFirstTime || !' + attrs.lazyLoad + ') ? ' + attrs.loadPromise + ' : null "' : '',
+                            attrs.loadByKeywordPromise ? 'load-by-keyword-promise="' + attrs.loadByKeywordPromise + '"' : '',
+                            attrs.loadByKeywordDelay ? 'load-by-keyword-delay="' + attrs.loadByKeywordDelay + '"' : '',
+                            attrs.loadByKeywordMinQueryLength ? 'load-by-keyword-min-query-length="' + attrs.loadByKeywordMinQueryLength + '"' : '',
+                            attrs.filters ? 'filters="' + attrs.filters + '"' : '',
+                            attrs.dropdownItemDecorator ? 'decorator="' + attrs.dropdownItemDecorator + '"' : '',
+                            attrs.dropdownGroupDecorator ? 'group-decorator="' + attrs.dropdownGroupDecorator + '"' : '',
+                    '>' + html + '</select-items></open-dropdown></div>'].join('');
             },
             link: function(scope, element, attrs) {
 
@@ -157,6 +160,7 @@
                 var id = angular.element(element).attr('data-id');
                 scope[id] = {
                     isOpened: false,
+                    isOpenedForFirstTime: false,
                     isDisabled: $parse(attrs.disabled)(scope)
                 };
 
@@ -231,12 +235,17 @@
                 // Event Listeners
                 // ---------------------------------------------------------------------
 
-                element[0].addEventListener('keydown', onSelectDropdownKeydown);
-                scope.$on('select-items.item_selected', onItemSelected);
-
                 scope.$watch(attrs.disabled, function(disabled) {
                     scope[id].isDisabled = disabled;
                 });
+
+                scope.$watch(id + '.isOpened', function(isOpened) {
+                    if (scope[id].isOpenedForFirstTime === false && isOpened === true)
+                        scope[id].isOpenedForFirstTime = true;
+                });
+
+                element[0].addEventListener('keydown', onSelectDropdownKeydown);
+                scope.$on('select-items.item_selected', onItemSelected);
             }
         };
     }
