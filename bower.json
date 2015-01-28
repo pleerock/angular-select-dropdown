@@ -28,7 +28,9 @@
   ],
   "dependencies": {
     "angular": ">= 1.0.8",
-    "angular-sanitize": ">= 1.0.8"
+    "angular-sanitize": ">= 1.0.8",
+    "angular-select-items": "latest",
+    "angular-open-dropdown": "latest"
   },
   "devDependencies": {
     "angular-mocks": ">= 1.0.8",
