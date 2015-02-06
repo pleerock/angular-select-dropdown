@@ -86,6 +86,7 @@
                                     'tabindex="3" ',
                                     'for="' + id + '" ',
                                     'toggle-click="true" ',
+                                    'fit-width-to-attached-container="true"',
                                     'is-opened="' + id + '.isOpened">',
                        '<select-items class="select-items"',
                             'select-options="' + attrs.selectOptions + '"',
