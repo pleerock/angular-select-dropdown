@@ -1,7 +1,7 @@
 {
   "name": "angular-select-dropdown",
   "description": "A special angular directive that allows to select items from the dropdown",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "keywords": ["multiselect-dropdown", "dropdown-multiselect", "select-dropdown", "angular-select-dropdown"],
   "authors": [
     { "name": "Umed Khudoiberdiev", "email": "info@zar.tj" }

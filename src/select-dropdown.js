@@ -66,29 +66,29 @@
      */
     function selectDropdown($parse) {
         return {
+            scope: true,
             replace: true,
             restrict: 'E',
             template: function(element, attrs) {
-                var id = 'select_dropdown_' + s4() + '_' + s4() + '_' + s4();
                 var html = element.html().trim();
 
-                return ['<div class="select-dropdown" ng-class="{ \'disabled\': ' + id + '.isDisabled }" data-id="' + id + '">',
-                    '<select-dropdown-items-box id="' + id + '" tabindex="2" style="display: block"',
+                return ['<div class="select-dropdown" ng-class="{ \'disabled\': isDisabled }">',
+                    '<select-dropdown-items-box ng-attr-id="{{ selectDropdownId }}" tabindex="2" style="display: block"',
                             'class="select-dropdown-items-box"',
-                            'ng-class="{\'opened\': ' + id + '.isOpened, \'closed\': !' + id + '.isOpened}"',
+                            'ng-class="{\'opened\': isOpened, \'closed\': !isOpened}"',
                             attrs.nothingSelectedLabel ? 'nothing-selected-label="' + attrs.nothingSelectedLabel + '"' : '',
                             attrs.selectedItemDecorator ? 'decorator="' + attrs.selectedItemDecorator + '"' : '',
                             attrs.selectedItemsSeparator ? 'separator="' + attrs.selectedItemsSeparator + '"' : '',
                             attrs.selectedItemsShowLimit ? 'show-limit="' + attrs.selectedItemsShowLimit + '"' : '',
                             '></select-dropdown-items-box>',
                     '<open-dropdown class="open-dropdown" ',
-                                    'disabled="' + attrs.disabled + '"',
-                                    'tabindex="3" ',
-                                    'for="' + id + '" ',
-                                    'toggle-click="true" ',
-                                    'fit-width-to-attached-container="true"',
-                                    'is-opened="' + id + '.isOpened">',
-                       '<select-items class="select-items"',
+                            'disabled="' + attrs.disabled + '"',
+                            'tabindex="3" ',
+                            'for="{{ selectDropdownId }}" ',
+                            'toggle-click="true" ',
+                            'fit-width-to-attached-container="true"',
+                            'is-opened="isOpened">',
+                            '<select-items class="select-items"',
                             'select-options="' + attrs.selectOptions + '"',
                             'ng-model="' + attrs.ngModel + '"',
                             attrs.onChange ? 'on-change="' + attrs.onChange + '"' : '',
@@ -107,7 +107,7 @@
                             attrs.deselectAllLabel ? 'deselect-all-label="' + attrs.deselectAllLabel + '"' : '',
                             attrs.noSelectionLabel ? 'no-selection-label="' + attrs.noSelectionLabel + '"' : '',
                             attrs.loadingLabel ? 'loading-label="' + attrs.loadingLabel + '"' : '',
-                            attrs.loadPromise ? 'load-promise="(' + id + '.isOpenedForFirstTime || !' + attrs.lazyLoad + ') ? ' + attrs.loadPromise + ' : null "' : '',
+                            attrs.loadPromise ? 'load-promise="(isOpenedForFirstTime || !' + attrs.lazyLoad + ') ? ' + attrs.loadPromise + ' : null "' : '',
                             attrs.loadByKeywordPromise ? 'load-by-keyword-promise="' + attrs.loadByKeywordPromise + '"' : '',
                             attrs.loadByKeywordDelay ? 'load-by-keyword-delay="' + attrs.loadByKeywordDelay + '"' : '',
                             attrs.loadByKeywordMinQueryLength ? 'load-by-keyword-min-query-length="' + attrs.loadByKeywordMinQueryLength + '"' : '',
@@ -122,12 +122,10 @@
                 // Variables
                 // ---------------------------------------------------------------------
 
-                var id = angular.element(element).attr('data-id');
-                scope[id] = {
-                    isOpened: false,
-                    isOpenedForFirstTime: false,
-                    isDisabled: $parse(attrs.disabled)(scope)
-                };
+                scope.selectDropdownId = 'select_autocomplete_' + s4() + '_' + s4() + '_' + s4();
+                scope.isOpened = false;
+                scope.isOpenedForFirstTime = false;
+                scope.isDisabled = $parse(attrs.disabled)(scope);
 
                 // ---------------------------------------------------------------------
                 // Local functions
@@ -154,27 +152,27 @@
 
                         case 38: // KEY "UP"
                             e.preventDefault();
-                            scope[id].isOpened = true;
+                            scope.isOpened = true;
                             scope.$broadcast('select-items.active_next');
                             scope.$digest();
                             return;
 
                         case 40: // KEY "DOWN"
                             e.preventDefault();
-                            scope[id].isOpened = true;
+                            scope.isOpened = true;
                             scope.$broadcast('select-items.active_previous');
                             scope.$digest();
                             return;
 
                         case 13: // KEY "ENTER"
-                            if (scope[id].isOpened) {
+                            if (scope.isOpened) {
                                 scope.$broadcast('select-items.select_active');
                                 scope.$digest();
                             }
                             return;
 
                         case 27: // KEY "ESC"
-                            scope[id].isOpened = false;
+                            scope.isOpened = false;
                             scope.$digest();
                             return;
 
@@ -191,7 +189,7 @@
                  */
                 var onItemSelected = function(event, object) {
                     if (object && !object.isMultiselect)
-                        scope[id].isOpened = false;
+                        scope.isOpened = false;
 
                     //scope.$digest();
                 };
@@ -201,22 +199,22 @@
                 // ---------------------------------------------------------------------
 
                 scope.$watch(attrs.disabled, function(disabled) {
-                    scope[id].isDisabled = disabled;
+                    scope.isDisabled = disabled;
                 });
 
-                scope.$watch(id + '.isOpened', function(isOpened) {
-                    if (scope[id].isOpenedForFirstTime === false && isOpened === true)
-                        scope[id].isOpenedForFirstTime = true;
+                scope.$watch('isOpened', function(isOpened) {
+                    if (scope.isOpenedForFirstTime === false && isOpened === true)
+                        scope.isOpenedForFirstTime = true;
                 });
 
                 element[0].addEventListener('keydown', onSelectDropdownKeydown);
                 scope.$on('select-items.item_selected', onItemSelected);
             }
         };
-    }
 
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+        }
     }
 
 })();
