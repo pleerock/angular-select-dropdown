@@ -279,7 +279,7 @@
     /**
      * @ngInject
      */
-    function selectDropdownItemsBox(selectDropdownConfiguration) {
+    function selectDropdownItemsBox(selectDropdownConfiguration, orderByFilter, filterFilter) {
         return {
             scope: {
                 decorator: '='
@@ -310,21 +310,56 @@
                  * @returns {string}
                  */
                 scope.getItemName = function(item) {
-                    var value = selectOptionsCtrl.parseItemValueFromSelection(item);
+                    var value = selectOptionsCtrl.parseItemName(item);
+                    value = String(value).replace(/<[^>]+>/gm, ''); // strip html from the data here
                     return scope.decorator ? scope.decorator(item) : value;
                 };
 
-                /**
-                 * Gets the items that will be used as an options for the model.
-                 *
-                 * @returns {Object[]}
-                 */
                 scope.getItems = function() {
-                    var items = ngModelCtrl.$viewValue;
-                    if (items && !angular.isArray(items))
-                        return [items];
+                    var items = selectOptionsCtrl.parseItems() || [];
+                    if (selectOptionsCtrl.getOrderBy())
+                        items = orderByFilter(items, selectOptionsCtrl.getOrderBy());
+                    if (selectOptionsCtrl.getGroupBy())
+                        items = orderByFilter(items, selectOptionsCtrl.getGroupByWithoutPrefixes());
 
-                    return items;
+                    var filteredItems = [];
+                    angular.forEach(items, function(item) {
+                        if (scope.isItemSelected(item)) {
+                            filteredItems.push(item);
+                        }
+                    });
+                    return filteredItems;
+                };
+
+                /**
+                 * Checks if given item is selected.
+                 *
+                 * @param {object} item
+                 * @returns {boolean}
+                 */
+                scope.isItemSelected = function(item) {
+                    var model = ngModelCtrl.$modelValue;
+                    var isMultiselect = model && model.length ? true : false;
+                    if (!model && !isMultiselect) return false;
+                    var value = selectOptionsCtrl.parseItemValue(item);
+                    var trackByProperty = selectOptionsCtrl.getTrackBy();
+                    var trackByValue    = selectOptionsCtrl.parseTrackBy(item);
+
+                    // if no tracking specified simple compare object in the model
+                    if (!trackByProperty || !trackByValue)
+                        return isMultiselect  ? (model && model.indexOf(value) !== -1) : model === value;
+
+                    // if tracking is specified then searching is more complex
+                    if (isMultiselect) {
+                        var isFound = false;
+                        angular.forEach(model, function(m) {
+                            if (m[trackByProperty] === trackByValue)
+                                isFound = true;
+                        });
+                        return isFound;
+                    }
+
+                    return model[trackByProperty] === trackByValue;
                 };
             }
         };
